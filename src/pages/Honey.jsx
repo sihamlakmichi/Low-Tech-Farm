@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useCart } from '../contexts/CartContext';
 
 function Hony() {
   const { t } = useLanguage();
+  const { addToCart, isInCart } = useCart();
   
-  // Créer des catégories constantes qui ne dépendent pas de la traduction
+  // Créer des catégories constantes
   const CATEGORIES = {
     ALL: 'all',
     CLASSIC: 'classic',
-    BLOSSOM: 'blossomHoney',
-    FOREST: 'forestHoney'
+    BLOSSOM: 'blossom',
+    FOREST: 'forest'
   };
   
   const [products] = useState([
@@ -19,9 +21,11 @@ function Hony() {
       description: t('akazienHonigDesc'),
       price: 9.90,
       image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      categoryKey: CATEGORIES.CLASSIC, // Utiliser la clé constante
+      categoryKey: CATEGORIES.CLASSIC,
+      category: "Honey",
       origin: t('germany'),
-      weight: "500g"
+      weight: "500g",
+      maxQuantity: 10
     },
     {
       id: 2,
@@ -29,9 +33,11 @@ function Hony() {
       description: t('lavenderHonigDesc'),
       price: 11.50,
       image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      categoryKey: CATEGORIES.BLOSSOM, // Utiliser la clé constante
+      categoryKey: CATEGORIES.BLOSSOM,
+      category: "Honey",
       origin: t('bavaria'),
-      weight: "500g"
+      weight: "500g",
+      maxQuantity: 10
     },
     {
       id: 3,
@@ -39,9 +45,11 @@ function Hony() {
       description: t('forestHoneyDesc'),
       price: 12.90,
       image: "https://images.unsplash.com/photo-1536599018109-73a2d3cbb89e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      categoryKey: CATEGORIES.FOREST, // Utiliser la clé constante
+      categoryKey: CATEGORIES.FOREST,
+      category: "Honey",
       origin: t('blackForest'),
-      weight: "500g"
+      weight: "500g",
+      maxQuantity: 10
     },
     {
       id: 4,
@@ -49,9 +57,11 @@ function Hony() {
       description: t('lindenHoneyDesc'),
       price: 10.90,
       image: "https://images.unsplash.com/photo-1587049633312-d628ae50a8ae?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      categoryKey: CATEGORIES.BLOSSOM, // Utiliser la clé constante
+      categoryKey: CATEGORIES.BLOSSOM,
+      category: "Honey",
       origin: t('hesse'),
-      weight: "500g"
+      weight: "500g",
+      maxQuantity: 10
     },
     {
       id: 5,
@@ -59,9 +69,11 @@ function Hony() {
       description: t('rapeseedHoneyDesc'),
       price: 8.90,
       image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-      categoryKey: CATEGORIES.CLASSIC, // Utiliser la clé constante
+      categoryKey: CATEGORIES.CLASSIC,
+      category: "Honey",
       origin: t('lowerSaxony'),
-      weight: "500g"
+      weight: "500g",
+      maxQuantity: 10
     },
     {
       id: 6,
@@ -69,27 +81,34 @@ function Hony() {
       description: t('firHoneyDesc'),
       price: 13.50,
       image: "https://images.unsplash.com/photo-1536599018109-73a2d3cbb89e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-      categoryKey: CATEGORIES.FOREST, // Utiliser la clé constante
+      categoryKey: CATEGORIES.FOREST,
+      category: "Honey",
       origin: t('bavaria'),
-      weight: "500g"
+      weight: "500g",
+      maxQuantity: 10
     }
   ]);
 
-  const [cart, setCart] = useState([]);
-  const [filter, setFilter] = useState(CATEGORIES.ALL); // Utiliser la constante
+  const [filter, setFilter] = useState(CATEGORIES.ALL);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-    alert(`${product.name} ${t('addedToCart')}`);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleAddToCart = (product) => {
+    addToCart(product, 1);
   };
 
   const filteredProducts = filter === CATEGORIES.ALL 
     ? products 
     : products.filter(product => product.categoryKey === filter);
 
-  const cartTotal = cart.reduce((total, item) => total + item.price, 0);
-
-  // Fonction pour obtenir la traduction de la catégorie
   const getCategoryLabel = (categoryKey) => {
     switch(categoryKey) {
       case CATEGORIES.ALL: return t('all');
@@ -102,16 +121,16 @@ function Hony() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.mainContent}>
-        <div style={styles.shopSection}>
+      <div style={isMobile ? styles.mainContentMobile : styles.mainContent}>
+        <div style={isMobile ? styles.shopSectionMobile : styles.shopSection}>
           <div style={styles.filterSection}>
             <h2 style={styles.sectionTitle}>{t('ourHoneyVarieties')}</h2>
-            <div style={styles.filterButtons}>
+            <div style={isMobile ? styles.filterButtonsMobile : styles.filterButtons}>
               {[CATEGORIES.ALL, CATEGORIES.CLASSIC, CATEGORIES.BLOSSOM, CATEGORIES.FOREST].map(categoryKey => (
                 <button
                   key={categoryKey}
                   style={{
-                    ...styles.filterButton,
+                    ...(isMobile ? styles.filterButtonMobile : styles.filterButton),
                     ...(filter === categoryKey ? styles.activeFilterButton : {})
                   }}
                   onClick={() => setFilter(categoryKey)}
@@ -122,7 +141,7 @@ function Hony() {
             </div>
           </div>
 
-          <div style={styles.productsGrid}>
+          <div style={isMobile ? styles.productsGridMobile : styles.productsGrid}>
             {filteredProducts.map(product => (
               <div key={product.id} style={styles.productCard}>
                 <div style={styles.productImageContainer}>
@@ -138,7 +157,7 @@ function Hony() {
                   <h3 style={styles.productName}>{product.name}</h3>
                   <p style={styles.productDescription}>{product.description}</p>
                   
-                  <div style={styles.productDetails}>
+                  <div style={isMobile ? styles.productDetailsMobile : styles.productDetails}>
                     <span style={styles.productOrigin}>
                       <strong>{t('origin')}:</strong> {product.origin}
                     </span>
@@ -147,13 +166,17 @@ function Hony() {
                     </span>
                   </div>
                   
-                  <div style={styles.productFooter}>
+                  <div style={isMobile ? styles.productFooterMobile : styles.productFooter}>
                     <div style={styles.productPrice}>{product.price.toFixed(2)} €</div>
+                    
                     <button 
-                      style={styles.addToCartButton}
-                      onClick={() => addToCart(product)}
+                      style={{
+                        ...(isMobile ? styles.addToCartButtonMobile : styles.addToCartButton),
+                        backgroundColor: isInCart(product.id) ? '#4CAF50' : '#000000'
+                      }}
+                      onClick={() => handleAddToCart(product)}
                     >
-                      {t('addToCart')}
+                      {isInCart(product.id) ? '✓ Déjà au panier' : t('addToCart')}
                     </button>
                   </div>
                 </div>
@@ -161,52 +184,6 @@ function Hony() {
             ))}
           </div>
         </div>
-
-        <aside style={styles.cartSidebar}>
-          <div style={styles.cartHeader}>
-            <h2 style={styles.cartTitle}>{t('shoppingCart')}</h2>
-            <div style={styles.cartCount}>{cart.length} {t('items')}</div>
-          </div>
-          
-          {cart.length === 0 ? (
-            <div style={styles.emptyCart}>
-              <p style={styles.emptyCartText}>{t('cartEmpty')}</p>
-              <div style={styles.honeyIcon}>🍯</div>
-            </div>
-          ) : (
-            <>
-              <div style={styles.cartItems}>
-                {cart.map((item, index) => (
-                  <div key={index} style={styles.cartItem}>
-                    <div style={styles.cartItemInfo}>
-                      <div style={styles.cartItemName}>{item.name}</div>
-                      <div style={styles.cartItemPrice}>{item.price.toFixed(2)} €</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div style={styles.cartTotal}>
-                <div style={styles.totalLabel}>{t('totalAmount')}:</div>
-                <div style={styles.totalAmount}>{cartTotal.toFixed(2)} €</div>
-              </div>
-              
-              <button style={styles.checkoutButton}>
-                {t('proceedToCheckout')}
-              </button>
-            </>
-          )}
-          
-          <div style={styles.infoBox}>
-            <h3 style={styles.infoTitle}>{t('whyGermanHoney')}</h3>
-            <ul style={styles.infoList}>
-              <li>✔ {t('supportLocalBeekeepers')}</li>
-              <li>✔ {t('shortTransportRoutes')}</li>
-              <li>✔ {t('strictQualityControl')}</li>
-              <li>✔ {t('sustainableBeekeeping')}</li>
-            </ul>
-          </div>
-        </aside>
       </div>
     </div>
   );
@@ -218,123 +195,186 @@ const styles = {
     backgroundColor: "#f8f8f8",
     minHeight: "100vh",
     color: "#333",
+    padding: "20px 0",
   },
   mainContent: {
     display: "flex",
-    maxWidth: "1400px",
-    margin: "30px auto",
+    maxWidth: "1200px",
+    margin: "0 auto",
     padding: "0 20px",
   },
+  mainContentMobile: {
+    display: "flex",
+    flexDirection: "column",
+    margin: "0 auto",
+    padding: "0 15px",
+    maxWidth: "100%",
+  },
   shopSection: {
-    flex: 3,
-    marginRight: "30px",
+    flex: 1,
+  },
+  shopSectionMobile: {
+    width: "100%",
   },
   filterSection: {
     backgroundColor: "white",
-    padding: "20px",
-    borderRadius: "10px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+    padding: "25px",
+    borderRadius: "15px",
+    boxShadow: "0 2px 15px rgba(0,0,0,0.1)",
     marginBottom: "30px",
   },
   sectionTitle: {
     color: "#000000",
-    marginBottom: "20px",
-    fontSize: "28px",
+    marginBottom: "25px",
+    fontSize: "32px",
+    fontWeight: "600",
   },
   filterButtons: {
     display: "flex",
     flexWrap: "wrap",
+    gap: "12px",
+  },
+  filterButtonsMobile: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: "10px",
+    justifyContent: "center",
   },
   filterButton: {
-    padding: "10px 20px",
+    padding: "12px 24px",
     backgroundColor: "#f0f0f0",
     border: "none",
-    borderRadius: "5px",
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "500",
     transition: "all 0.3s",
+    fontSize: "15px",
+    minWidth: "130px",
+    textAlign: "center",
+  },
+  filterButtonMobile: {
+    padding: "10px 15px",
+    backgroundColor: "#f0f0f0",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "500",
+    transition: "all 0.3s",
+    fontSize: "14px",
+    flex: "1 1 calc(50% - 10px)",
+    minWidth: "0",
+    textAlign: "center",
   },
   activeFilterButton: {
     backgroundColor: "#000000",
     color: "white",
+    transform: "translateY(-2px)",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
   },
   productsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+    gap: "30px",
+  },
+  productsGridMobile: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
     gap: "25px",
   },
   productCard: {
     backgroundColor: "white",
-    borderRadius: "10px",
+    borderRadius: "12px",
     overflow: "hidden",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
     transition: "transform 0.3s, box-shadow 0.3s",
     display: "flex",
     flexDirection: "column",
+    height: "100%",
   },
   productImageContainer: {
     position: "relative",
-    height: "200px",
+    height: "220px",
     overflow: "hidden",
   },
   productImage: {
     width: "100%",
     height: "100%",
     objectFit: "cover",
+    transition: "transform 0.5s",
   },
   productCategory: {
     position: "absolute",
     top: "15px",
     right: "15px",
-    backgroundColor: "#FFCC00",
+    backgroundColor: "#FFCE00",
     color: "#000000",
-    padding: "5px 10px",
+    padding: "6px 12px",
     borderRadius: "20px",
     fontSize: "12px",
     fontWeight: "bold",
+    textTransform: "uppercase",
   },
   productInfo: {
-    padding: "20px",
+    padding: "25px",
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
   },
   productName: {
     fontSize: "22px",
-    marginBottom: "10px",
+    marginBottom: "12px",
     color: "#000000",
+    fontWeight: "600",
   },
   productDescription: {
     color: "#666",
-    lineHeight: "1.5",
-    marginBottom: "15px",
+    lineHeight: "1.6",
+    marginBottom: "20px",
     flexGrow: 1,
+    fontSize: "15px",
   },
   productDetails: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: "20px",
+    marginBottom: "25px",
+    fontSize: "14px",
+    color: "#555",
+  },
+  productDetailsMobile: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginBottom: "25px",
     fontSize: "14px",
     color: "#555",
   },
   productOrigin: {
-    backgroundColor: "#f5f5f5",
-    padding: "5px 10px",
-    borderRadius: "5px",
+    backgroundColor: "#f8f9fa",
+    padding: "10px 15px",
+    borderRadius: "8px",
+    flex: "1",
+    marginRight: "10px",
   },
   productWeight: {
-    backgroundColor: "#f5f5f5",
-    padding: "5px 10px",
-    borderRadius: "5px",
+    backgroundColor: "#f8f9fa",
+    padding: "10px 15px",
+    borderRadius: "8px",
+    flex: "1",
+    marginLeft: "10px",
   },
   productFooter: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  productFooterMobile: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
   productPrice: {
-    fontSize: "24px",
+    fontSize: "26px",
     fontWeight: "bold",
     color: "#DD0000",
   },
@@ -342,119 +382,140 @@ const styles = {
     backgroundColor: "#000000",
     color: "white",
     border: "none",
-    padding: "12px 20px",
-    borderRadius: "5px",
+    padding: "14px 25px",
+    borderRadius: "8px",
     cursor: "pointer",
-    fontWeight: "bold",
-    transition: "background-color 0.3s",
+    fontWeight: "600",
+    transition: "all 0.3s",
+    fontSize: "15px",
+    minWidth: "160px",
   },
-  cartSidebar: {
-    flex: 1,
-    backgroundColor: "white",
-    borderRadius: "10px",
-    padding: "25px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    height: "fit-content",
-  },
-  cartHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-    paddingBottom: "15px",
-    borderBottom: "2px solid #f0f0f0",
-  },
-  cartTitle: {
-    color: "#000000",
-    fontSize: "24px",
-  },
-  cartCount: {
-    backgroundColor: "#DD0000",
+  addToCartButtonMobile: {
+    backgroundColor: "#000000",
     color: "white",
-    borderRadius: "20px",
-    padding: "5px 15px",
-    fontSize: "14px",
-    fontWeight: "bold",
-  },
-  emptyCart: {
-    textAlign: "center",
-    padding: "40px 20px",
-  },
-  emptyCartText: {
-    color: "#666",
-    fontSize: "18px",
-    marginBottom: "20px",
-  },
-  honeyIcon: {
-    fontSize: "60px",
-  },
-  cartItems: {
-    marginBottom: "20px",
-  },
-  cartItem: {
-    padding: "15px 0",
-    borderBottom: "1px solid #f0f0f0",
-  },
-  cartItemInfo: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  cartItemName: {
-    fontWeight: "500",
-  },
-  cartItemPrice: {
-    fontWeight: "bold",
-    color: "#DD0000",
-  },
-  cartTotal: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "20px 0",
-    borderTop: "2px solid #f0f0f0",
-    borderBottom: "2px solid #f0f0f0",
-    marginBottom: "20px",
-    fontSize: "18px",
-    fontWeight: "bold",
-  },
-  totalLabel: {
-    color: "#000000",
-  },
-  totalAmount: {
-    color: "#DD0000",
-  },
-  checkoutButton: {
-    backgroundColor: "#FFCC00",
-    color: "#000000",
     border: "none",
-    width: "100%",
-    padding: "15px",
-    borderRadius: "5px",
-    fontSize: "16px",
-    fontWeight: "bold",
+    padding: "14px",
+    borderRadius: "8px",
     cursor: "pointer",
-    transition: "background-color 0.3s",
-    marginBottom: "30px",
+    fontWeight: "600",
+    transition: "all 0.3s",
+    fontSize: "15px",
+    width: "100%",
   },
-  infoBox: {
-    backgroundColor: "#f9f9f9",
-    padding: "20px",
-    borderRadius: "10px",
-    borderLeft: "5px solid #000000",
+  // Media queries inline
+  '@media (max-width: 1024px)': {
+    mainContent: {
+      padding: "0 15px",
+    },
+    productsGrid: {
+      gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+      gap: "25px",
+    },
   },
-  infoTitle: {
-    color: "#000000",
-    marginBottom: "15px",
-    fontSize: "18px",
+  '@media (max-width: 768px)': {
+    container: {
+      padding: "15px 0",
+    },
+    sectionTitle: {
+      fontSize: "28px",
+      marginBottom: "20px",
+    },
+    filterButtonMobile: {
+      fontSize: "13px",
+      padding: "8px 12px",
+    },
+    productImageContainer: {
+      height: "200px",
+    },
+    productInfo: {
+      padding: "20px",
+    },
+    productName: {
+      fontSize: "20px",
+    },
+    productDescription: {
+      fontSize: "14px",
+    },
+    productPrice: {
+      fontSize: "24px",
+    },
+    addToCartButtonMobile: {
+      padding: "12px",
+      fontSize: "14px",
+    },
   },
-  infoList: {
-    listStyleType: "none",
-    paddingLeft: "0",
-  },
-  infoListLi: {
-    marginBottom: "10px",
+  '@media (max-width: 480px)': {
+    container: {
+      padding: "10px 0",
+    },
+    mainContentMobile: {
+      padding: "0 10px",
+    },
+    filterSection: {
+      padding: "20px",
+    },
+    sectionTitle: {
+      fontSize: "24px",
+    },
+    filterButtonMobile: {
+      fontSize: "12px",
+      padding: "6px 10px",
+    },
+    productsGridMobile: {
+      gap: "20px",
+    },
+    productImageContainer: {
+      height: "180px",
+    },
+    productCategory: {
+      fontSize: "11px",
+      padding: "4px 10px",
+    },
+    productInfo: {
+      padding: "15px",
+    },
+    productName: {
+      fontSize: "18px",
+    },
+    productDescription: {
+      fontSize: "13px",
+    },
+    productDetailsMobile: {
+      fontSize: "13px",
+    },
+    productOrigin: {
+      padding: "8px 12px",
+      marginRight: "0",
+    },
+    productWeight: {
+      padding: "8px 12px",
+      marginLeft: "0",
+    },
+    productPrice: {
+      fontSize: "22px",
+    },
+    addToCartButtonMobile: {
+      fontSize: "13px",
+    },
   },
 };
 
-styles.infoList.li = styles.infoListLi;
+// Appliquer les media queries
+Object.keys(styles).forEach(key => {
+  if (key.startsWith('@media')) {
+    const mediaQuery = key;
+    const mediaStyles = styles[key];
+    
+    Object.keys(mediaStyles).forEach(styleKey => {
+      if (styles[styleKey]) {
+        if (typeof styles[styleKey] === 'object') {
+          styles[styleKey] = { ...styles[styleKey], ...mediaStyles[styleKey] };
+        }
+      }
+    });
+    
+    delete styles[key];
+  }
+});
 
 export default Hony;

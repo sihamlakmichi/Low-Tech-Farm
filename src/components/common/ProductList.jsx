@@ -3,7 +3,7 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import { useProducts } from '../../hooks/useProducts';
 
-const ProductList = ({ category = 'all', limit = null }) => {
+const ProductList = ({ category = "all", limit = null }) => {
   const { products, loading, error } = useProducts(category, limit);
 
   if (loading) {
@@ -19,7 +19,9 @@ const ProductList = ({ category = 'all', limit = null }) => {
     return (
       <div className="error-container">
         <p>❌ {error}</p>
-        <button onClick={() => window.location.reload()}>Réessayer</button>
+        <button onClick={() => window.location.reload()}>
+          Réessayer
+        </button>
       </div>
     );
   }
@@ -27,7 +29,7 @@ const ProductList = ({ category = 'all', limit = null }) => {
   if (products.length === 0) {
     return (
       <div className="empty-container">
-        <p>Aucun produit trouvé dans cette catégorie.</p>
+        <p>Aucun produit trouvé.</p>
       </div>
     );
   }
@@ -35,7 +37,10 @@ const ProductList = ({ category = 'all', limit = null }) => {
   return (
     <div className="product-list">
       {products.map(product => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={`${product.category}-${product.id}`}
+          product={product}
+        />
       ))}
     </div>
   );

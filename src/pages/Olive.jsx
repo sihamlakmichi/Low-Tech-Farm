@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useCart } from '../contexts/CartContext';
 
 function Olive() {
   const { t } = useLanguage();
+  const { addToCart, isInCart } = useCart();
   
   // Catégories constantes
   const CATEGORIES = {
@@ -21,9 +23,11 @@ function Olive() {
       price: 22.90,
       image: "https://images.unsplash.com/photo-1536975700520-2d436f3d8df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
       categoryKey: CATEGORIES.EXTRA_VIRGIN,
+      category: "Olive Oil",
       origin: t('andalusia'),
       acidity: "0.2%",
-      volume: "500ml"
+      volume: "500ml",
+      maxQuantity: 10
     },
     {
       id: 2,
@@ -32,9 +36,11 @@ function Olive() {
       price: 18.50,
       image: "https://images.unsplash.com/photo-1505253668822-42074d58a7c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
       categoryKey: CATEGORIES.EXTRA_VIRGIN,
+      category: "Olive Oil",
       origin: t('tuscany'),
       acidity: "0.3%",
-      volume: "500ml"
+      volume: "500ml",
+      maxQuantity: 10
     },
     {
       id: 3,
@@ -43,9 +49,11 @@ function Olive() {
       price: 16.90,
       image: "https://images.unsplash.com/photo-1505253668822-42074d58a7c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
       categoryKey: CATEGORIES.FLAVORED,
+      category: "Olive Oil",
       origin: t('sicily'),
       acidity: "0.4%",
-      volume: "250ml"
+      volume: "250ml",
+      maxQuantity: 10
     },
     {
       id: 4,
@@ -54,9 +62,11 @@ function Olive() {
       price: 20.90,
       image: "https://images.unsplash.com/photo-1536975700520-2d436f3d8df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
       categoryKey: CATEGORIES.ORGANIC,
+      category: "Olive Oil",
       origin: t('crete'),
       acidity: "0.25%",
-      volume: "500ml"
+      volume: "500ml",
+      maxQuantity: 10
     },
     {
       id: 5,
@@ -65,9 +75,11 @@ function Olive() {
       price: 15.90,
       image: "https://images.unsplash.com/photo-1505253668822-42074d58a7c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=70",
       categoryKey: CATEGORIES.FLAVORED,
+      category: "Olive Oil",
       origin: t('apulia'),
       acidity: "0.5%",
-      volume: "250ml"
+      volume: "250ml",
+      maxQuantity: 10
     },
     {
       id: 6,
@@ -76,9 +88,11 @@ function Olive() {
       price: 12.50,
       image: "https://images.unsplash.com/photo-1536975700520-2d436f3d8df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=70",
       categoryKey: CATEGORIES.VIRGIN,
+      category: "Olive Oil",
       origin: t('provence'),
       acidity: "0.8%",
-      volume: "750ml"
+      volume: "750ml",
+      maxQuantity: 10
     },
     {
       id: 7,
@@ -87,9 +101,11 @@ function Olive() {
       price: 17.50,
       image: "https://images.unsplash.com/photo-1505253668822-42074d58a7c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
       categoryKey: CATEGORIES.FLAVORED,
+      category: "Olive Oil",
       origin: t('liguria'),
       acidity: "0.4%",
-      volume: "250ml"
+      volume: "250ml",
+      maxQuantity: 10
     },
     {
       id: 8,
@@ -98,25 +114,33 @@ function Olive() {
       price: 24.90,
       image: "https://images.unsplash.com/photo-1536975700520-2d436f3d8df4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
       categoryKey: CATEGORIES.ORGANIC,
+      category: "Olive Oil",
       origin: t('catalonia'),
       acidity: "0.18%",
-      volume: "500ml"
+      volume: "500ml",
+      maxQuantity: 10
     }
   ]);
 
-  const [cart, setCart] = useState([]);
   const [filter, setFilter] = useState(CATEGORIES.ALL);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-    alert(`${product.name} ${t('addedToCart')}`);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleAddToCart = (product) => {
+    addToCart(product, 1);
   };
 
   const filteredProducts = filter === CATEGORIES.ALL 
     ? products 
     : products.filter(product => product.categoryKey === filter);
-
-  const cartTotal = cart.reduce((total, item) => total + item.price, 0);
 
   // Fonction pour obtenir la traduction de la catégorie
   const getCategoryLabel = (categoryKey) => {
@@ -132,24 +156,33 @@ function Olive() {
 
   return (
     <div style={styles.container}>
-      {/* En-tête avec drapeau allemand */}
-      <div style={styles.header}>
-        <div style={styles.germanFlag}>
-          <div style={styles.blackStripe}></div>
-          <div style={styles.redStripe}></div>
-          <div style={styles.yellowStripe}></div>
+      {/* En-tête avec drapeau allemand - seulement pour desktop */}
+      {!isMobile && (
+        <div style={styles.header}>
+          <div style={styles.germanFlag}>
+            <div style={styles.blackStripe}></div>
+            <div style={styles.redStripe}></div>
+            <div style={styles.yellowStripe}></div>
+          </div>
+          <div style={styles.headerContent}>
+            <h1 style={styles.logo}>OLIVENÖL</h1>
+            <p style={styles.tagline}>{t('oliveOilTagline')}</p>
+          </div>
         </div>
-        <div style={styles.headerContent}>
-          <h1 style={styles.logo}>OLIVENÖL</h1>
-          <p style={styles.tagline}>{t('oliveOilTagline')}</p>
-        </div>
-      </div>
+      )}
 
-      <div style={styles.mainContent}>
-        <div style={styles.shopSection}>
+      {isMobile && (
+        <div style={styles.mobileHeader}>
+          <h1 style={styles.mobileLogo}>OLIVENÖL</h1>
+          <p style={styles.mobileTagline}>{t('oliveOilTagline')}</p>
+        </div>
+      )}
+
+      <div style={isMobile ? styles.mainContentMobile : styles.mainContent}>
+        <div style={isMobile ? styles.shopSectionMobile : styles.shopSection}>
           <div style={styles.filterSection}>
             <h2 style={styles.sectionTitle}>{t('ourOliveOilVarieties')}</h2>
-            <div style={styles.filterButtons}>
+            <div style={isMobile ? styles.filterButtonsMobile : styles.filterButtons}>
               {[
                 CATEGORIES.ALL, 
                 CATEGORIES.EXTRA_VIRGIN, 
@@ -160,7 +193,7 @@ function Olive() {
                 <button
                   key={categoryKey}
                   style={{
-                    ...styles.filterButton,
+                    ...(isMobile ? styles.filterButtonMobile : styles.filterButton),
                     ...(filter === categoryKey ? styles.activeFilterButton : {})
                   }}
                   onClick={() => setFilter(categoryKey)}
@@ -171,7 +204,7 @@ function Olive() {
             </div>
           </div>
 
-          <div style={styles.productsGrid}>
+          <div style={isMobile ? styles.productsGridMobile : styles.productsGrid}>
             {filteredProducts.map(product => (
               <div key={product.id} style={styles.productCard}>
                 <div style={styles.productImageContainer}>
@@ -187,7 +220,7 @@ function Olive() {
                   <h3 style={styles.productName}>{product.name}</h3>
                   <p style={styles.productDescription}>{product.description}</p>
                   
-                  <div style={styles.productDetails}>
+                  <div style={isMobile ? styles.productDetailsMobile : styles.productDetails}>
                     <span style={styles.productOrigin}>
                       <strong>{t('origin')}:</strong> {product.origin}
                     </span>
@@ -199,13 +232,16 @@ function Olive() {
                     </span>
                   </div>
                   
-                  <div style={styles.productFooter}>
+                  <div style={isMobile ? styles.productFooterMobile : styles.productFooter}>
                     <div style={styles.productPrice}>{product.price.toFixed(2)} €</div>
                     <button 
-                      style={styles.addToCartButton}
-                      onClick={() => addToCart(product)}
+                      style={{
+                        ...(isMobile ? styles.addToCartButtonMobile : styles.addToCartButton),
+                        backgroundColor: isInCart(product.id) ? '#4CAF50' : '#556B2F'
+                      }}
+                      onClick={() => handleAddToCart(product)}
                     >
-                      {t('addToCart')}
+                      {isInCart(product.id) ? '✓ ' + t('alreadyInCart') : t('addToCart')}
                     </button>
                   </div>
                 </div>
@@ -213,62 +249,7 @@ function Olive() {
             ))}
           </div>
         </div>
-
-        <aside style={styles.cartSidebar}>
-          <div style={styles.cartHeader}>
-            <h2 style={styles.cartTitle}>{t('shoppingCart')}</h2>
-            <div style={styles.cartCount}>{cart.length} {t('items')}</div>
-          </div>
-          
-          {cart.length === 0 ? (
-            <div style={styles.emptyCart}>
-              <p style={styles.emptyCartText}>{t('cartEmpty')}</p>
-              <div style={styles.oliveIcon}>🫒</div>
-            </div>
-          ) : (
-            <>
-              <div style={styles.cartItems}>
-                {cart.map((item, index) => (
-                  <div key={index} style={styles.cartItem}>
-                    <div style={styles.cartItemInfo}>
-                      <div style={styles.cartItemName}>{item.name}</div>
-                      <div style={styles.cartItemPrice}>{item.price.toFixed(2)} €</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div style={styles.cartTotal}>
-                <div style={styles.totalLabel}>{t('totalAmount')}:</div>
-                <div style={styles.totalAmount}>{cartTotal.toFixed(2)} €</div>
-              </div>
-              
-              <button style={styles.checkoutButton}>
-                {t('proceedToCheckout')}
-              </button>
-            </>
-          )}
-          
-          <div style={styles.infoBox}>
-            <h3 style={styles.infoTitle}>{t('whyQualityOliveOil')}</h3>
-            <ul style={styles.infoList}>
-              <li>✔ {t('coldPressed')}</li>
-              <li>✔ {t('firstColdPress')}</li>
-              <li>✔ {t('lowAcidity')}</li>
-              <li>✔ {t('richInPolyphenols')}</li>
-              <li>✔ {t('sustainableFarming')}</li>
-            </ul>
-          </div>
-
-          <div style={styles.storageTips}>
-            <h3 style={styles.storageTitle}>{t('storageTips')}</h3>
-            <p style={styles.storageText}>
-              {t('storageDescription')}
-            </p>
-          </div>
-        </aside>
       </div>
-
     </div>
   );
 }
@@ -286,6 +267,12 @@ const styles = {
     padding: "20px 0",
     textAlign: "center",
     position: "relative",
+  },
+  mobileHeader: {
+    backgroundColor: "#556B2F",
+    color: "white",
+    padding: "15px 20px",
+    textAlign: "center",
   },
   germanFlag: {
     position: "absolute",
@@ -315,8 +302,19 @@ const styles = {
     margin: "10px 0 5px 0",
     letterSpacing: "3px",
   },
+  mobileLogo: {
+    fontSize: "32px",
+    fontWeight: "bold",
+    margin: "0 0 5px 0",
+    letterSpacing: "2px",
+  },
   tagline: {
     fontSize: "18px",
+    opacity: 0.9,
+    marginTop: "5px",
+  },
+  mobileTagline: {
+    fontSize: "14px",
     opacity: 0.9,
     marginTop: "5px",
   },
@@ -326,67 +324,106 @@ const styles = {
     margin: "30px auto",
     padding: "0 20px",
   },
+  mainContentMobile: {
+    display: "flex",
+    flexDirection: "column",
+    margin: "0 auto",
+    padding: "15px",
+    maxWidth: "100%",
+  },
   shopSection: {
-    flex: 3,
+    flex: 1,
     marginRight: "30px",
+  },
+  shopSectionMobile: {
+    width: "100%",
   },
   filterSection: {
     backgroundColor: "white",
-    padding: "20px",
-    borderRadius: "10px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+    padding: "25px",
+    borderRadius: "15px",
+    boxShadow: "0 2px 15px rgba(0,0,0,0.1)",
     marginBottom: "30px",
   },
   sectionTitle: {
     color: "#556B2F",
-    marginBottom: "20px",
-    fontSize: "28px",
+    marginBottom: "25px",
+    fontSize: "32px",
+    fontWeight: "600",
   },
   filterButtons: {
     display: "flex",
     flexWrap: "wrap",
+    gap: "12px",
+  },
+  filterButtonsMobile: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: "10px",
+    justifyContent: "center",
   },
   filterButton: {
-    padding: "10px 20px",
+    padding: "12px 24px",
     backgroundColor: "#f0f0f0",
     border: "none",
-    borderRadius: "5px",
+    borderRadius: "8px",
     cursor: "pointer",
     fontWeight: "500",
     transition: "all 0.3s",
+    fontSize: "15px",
+    minWidth: "150px",
+    textAlign: "center",
+  },
+  filterButtonMobile: {
+    padding: "10px 15px",
+    backgroundColor: "#f0f0f0",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "500",
+    transition: "all 0.3s",
+    fontSize: "14px",
+    flex: "1 1 calc(50% - 10px)",
+    minWidth: "0",
+    textAlign: "center",
   },
   activeFilterButton: {
     backgroundColor: "#556B2F",
     color: "white",
+    transform: "translateY(-2px)",
+    boxShadow: "0 4px 8px rgba(85,107,47,0.2)",
   },
   productsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+    gap: "30px",
+  },
+  productsGridMobile: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
     gap: "25px",
   },
   productCard: {
     backgroundColor: "white",
-    borderRadius: "10px",
+    borderRadius: "12px",
     overflow: "hidden",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
     transition: "transform 0.3s, box-shadow 0.3s",
     display: "flex",
     flexDirection: "column",
-    ':hover': {
-      transform: 'translateY(-5px)',
-      boxShadow: '0 8px 20px rgba(0,0,0,0.15)'
-    }
+    height: "100%",
   },
   productImageContainer: {
     position: "relative",
-    height: "200px",
+    height: "220px",
     overflow: "hidden",
   },
   productImage: {
     width: "100%",
     height: "100%",
     objectFit: "cover",
+    transition: "transform 0.5s",
   },
   productCategory: {
     position: "absolute",
@@ -394,58 +431,74 @@ const styles = {
     right: "15px",
     backgroundColor: "#556B2F",
     color: "white",
-    padding: "5px 10px",
+    padding: "6px 12px",
     borderRadius: "20px",
     fontSize: "12px",
     fontWeight: "bold",
+    textTransform: "uppercase",
   },
   productInfo: {
-    padding: "20px",
+    padding: "25px",
     flexGrow: 1,
     display: "flex",
     flexDirection: "column",
   },
   productName: {
     fontSize: "22px",
-    marginBottom: "10px",
+    marginBottom: "12px",
     color: "#556B2F",
+    fontWeight: "600",
   },
   productDescription: {
     color: "#666",
-    lineHeight: "1.5",
-    marginBottom: "15px",
+    lineHeight: "1.6",
+    marginBottom: "20px",
     flexGrow: 1,
+    fontSize: "15px",
   },
   productDetails: {
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
-    marginBottom: "20px",
+    gap: "12px",
+    marginBottom: "25px",
+    fontSize: "14px",
+    color: "#555",
+  },
+  productDetailsMobile: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginBottom: "25px",
     fontSize: "14px",
     color: "#555",
   },
   productOrigin: {
     backgroundColor: "#f5f5dc",
-    padding: "5px 10px",
-    borderRadius: "5px",
+    padding: "10px 15px",
+    borderRadius: "8px",
   },
   productAcidity: {
     backgroundColor: "#f5f5dc",
-    padding: "5px 10px",
-    borderRadius: "5px",
+    padding: "10px 15px",
+    borderRadius: "8px",
   },
   productVolume: {
     backgroundColor: "#f5f5dc",
-    padding: "5px 10px",
-    borderRadius: "5px",
+    padding: "10px 15px",
+    borderRadius: "8px",
   },
   productFooter: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  productFooterMobile: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
   productPrice: {
-    fontSize: "24px",
+    fontSize: "26px",
     fontWeight: "bold",
     color: "#8B4513",
   },
@@ -453,176 +506,148 @@ const styles = {
     backgroundColor: "#556B2F",
     color: "white",
     border: "none",
-    padding: "12px 20px",
-    borderRadius: "5px",
+    padding: "14px 25px",
+    borderRadius: "8px",
     cursor: "pointer",
-    fontWeight: "bold",
-    transition: "background-color 0.3s",
-    ':hover': {
-      backgroundColor: '#6B8E23'
-    }
+    fontWeight: "600",
+    transition: "all 0.3s",
+    fontSize: "15px",
+    minWidth: "160px",
   },
-  cartSidebar: {
-    flex: 1,
-    backgroundColor: "white",
-    borderRadius: "10px",
-    padding: "25px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    height: "fit-content",
-  },
-  cartHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-    paddingBottom: "15px",
-    borderBottom: "2px solid #f0f0f0",
-  },
-  cartTitle: {
-    color: "#556B2F",
-    fontSize: "24px",
-  },
-  cartCount: {
-    backgroundColor: "#8B4513",
-    color: "white",
-    borderRadius: "20px",
-    padding: "5px 15px",
-    fontSize: "14px",
-    fontWeight: "bold",
-  },
-  emptyCart: {
-    textAlign: "center",
-    padding: "40px 20px",
-  },
-  emptyCartText: {
-    color: "#666",
-    fontSize: "18px",
-    marginBottom: "20px",
-  },
-  oliveIcon: {
-    fontSize: "60px",
-  },
-  cartItems: {
-    marginBottom: "20px",
-  },
-  cartItem: {
-    padding: "15px 0",
-    borderBottom: "1px solid #f0f0f0",
-  },
-  cartItemInfo: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  cartItemName: {
-    fontWeight: "500",
-  },
-  cartItemPrice: {
-    fontWeight: "bold",
-    color: "#8B4513",
-  },
-  cartTotal: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "20px 0",
-    borderTop: "2px solid #f0f0f0",
-    borderBottom: "2px solid #f0f0f0",
-    marginBottom: "20px",
-    fontSize: "18px",
-    fontWeight: "bold",
-  },
-  totalLabel: {
-    color: "#556B2F",
-  },
-  totalAmount: {
-    color: "#8B4513",
-  },
-  checkoutButton: {
-    backgroundColor: "#DAA520",
-    color: "white",
-    border: "none",
-    width: "100%",
-    padding: "15px",
-    borderRadius: "5px",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    transition: "background-color 0.3s",
-    marginBottom: "20px",
-    ':hover': {
-      backgroundColor: '#B8860B'
-    }
-  },
-  infoBox: {
-    backgroundColor: "#f5f5dc",
-    padding: "20px",
-    borderRadius: "10px",
-    borderLeft: "5px solid #556B2F",
-    marginBottom: "20px",
-  },
-  infoTitle: {
-    color: "#556B2F",
-    marginBottom: "15px",
-    fontSize: "18px",
-  },
-  infoList: {
-    listStyleType: "none",
-    paddingLeft: "0",
-  },
-  infoListLi: {
-    marginBottom: "8px",
-    color: "#555",
-  },
-  storageTips: {
-    backgroundColor: "#fff8dc",
-    padding: "20px",
-    borderRadius: "10px",
-    borderLeft: "5px solid #DAA520",
-  },
-  storageTitle: {
-    color: "#DAA520",
-    marginBottom: "15px",
-    fontSize: "18px",
-  },
-  storageText: {
-    color: "#666",
-    lineHeight: "1.5",
-    fontSize: "14px",
-  },
-  footer: {
+  addToCartButtonMobile: {
     backgroundColor: "#556B2F",
     color: "white",
-    padding: "40px 0 20px 0",
-    marginTop: "50px",
+    border: "none",
+    padding: "14px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "600",
+    transition: "all 0.3s",
+    fontSize: "15px",
+    width: "100%",
   },
-  footerContent: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    display: "flex",
-    justifyContent: "space-around",
-    flexWrap: "wrap",
-    padding: "0 20px",
-    marginBottom: "30px",
+  // Media queries inline
+  '@media (max-width: 1024px)': {
+    mainContent: {
+      padding: "0 15px",
+      margin: "20px auto",
+    },
+    shopSection: {
+      marginRight: "0",
+    },
+    productsGrid: {
+      gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+      gap: "25px",
+    },
+    filterButton: {
+      minWidth: "120px",
+      padding: "10px 20px",
+    },
   },
-  footerSection: {
-    flex: 1,
-    minWidth: "250px",
-    marginBottom: "30px",
-    padding: "0 20px",
+  '@media (max-width: 768px)': {
+    container: {
+      padding: "0",
+    },
+    sectionTitle: {
+      fontSize: "28px",
+      marginBottom: "20px",
+    },
+    filterButtonMobile: {
+      fontSize: "13px",
+      padding: "8px 12px",
+    },
+    productImageContainer: {
+      height: "200px",
+    },
+    productInfo: {
+      padding: "20px",
+    },
+    productName: {
+      fontSize: "20px",
+    },
+    productDescription: {
+      fontSize: "14px",
+    },
+    productPrice: {
+      fontSize: "24px",
+    },
+    addToCartButtonMobile: {
+      padding: "12px",
+      fontSize: "14px",
+    },
   },
-  footerTitle: {
-    fontSize: "20px",
-    marginBottom: "15px",
-    color: "#DAA520",
+  '@media (max-width: 480px)': {
+    mainContentMobile: {
+      padding: "10px",
+    },
+    filterSection: {
+      padding: "20px",
+      borderRadius: "10px",
+      marginBottom: "20px",
+    },
+    sectionTitle: {
+      fontSize: "24px",
+    },
+    filterButtonMobile: {
+      fontSize: "12px",
+      padding: "6px 10px",
+    },
+    productsGridMobile: {
+      gap: "20px",
+    },
+    productImageContainer: {
+      height: "180px",
+    },
+    productCategory: {
+      fontSize: "11px",
+      padding: "4px 10px",
+    },
+    productInfo: {
+      padding: "15px",
+    },
+    productName: {
+      fontSize: "18px",
+    },
+    productDescription: {
+      fontSize: "13px",
+    },
+    productDetailsMobile: {
+      fontSize: "13px",
+    },
+    productOrigin: {
+      padding: "8px 12px",
+    },
+    productAcidity: {
+      padding: "8px 12px",
+    },
+    productVolume: {
+      padding: "8px 12px",
+    },
+    productPrice: {
+      fontSize: "22px",
+    },
+    addToCartButtonMobile: {
+      fontSize: "13px",
+    },
   },
-  copyright: {
-    textAlign: "center",
-    paddingTop: "20px",
-    borderTop: "1px solid rgba(255,255,255,0.1)",
-    color: "rgba(255,255,255,0.7)",
-    fontSize: "14px",
-  }
 };
 
-styles.infoList.li = styles.infoListLi;
+// Appliquer les media queries
+Object.keys(styles).forEach(key => {
+  if (key.startsWith('@media')) {
+    const mediaQuery = key;
+    const mediaStyles = styles[key];
+    
+    Object.keys(mediaStyles).forEach(styleKey => {
+      if (styles[styleKey]) {
+        if (typeof styles[styleKey] === 'object') {
+          styles[styleKey] = { ...styles[styleKey], ...mediaStyles[styleKey] };
+        }
+      }
+    });
+    
+    delete styles[key];
+  }
+});
 
 export default Olive;

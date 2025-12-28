@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useCart } from '../contexts/CartContext';
 
 function Tea() {
   const { t } = useLanguage();
-  
-  // Catégories constantes
+  const { addToCart, isInCart, cartItems } = useCart();
+
+  /* ================== CATEGORIES ================== */
   const CATEGORIES = {
     ALL: 'all',
     BLACK: 'blackTea',
@@ -12,140 +14,104 @@ function Tea() {
     HERBAL: 'herbalTea',
     FRUIT: 'fruitTea'
   };
-  
+
+  /* ================== PRODUITS ================== */
   const [products] = useState([
     {
-      id: 1,
+      id: 201,
       name: t('earlGreyName'),
       description: t('earlGreyDesc'),
       price: 8.90,
-      image: "https://images.unsplash.com/photo-1560343090-f0409e92791a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+      image: "https://images.unsplash.com/photo-1560343090-f0409e92791a",
       categoryKey: CATEGORIES.BLACK,
+      category: "Tea",
       origin: t('england'),
-      weight: "100g"
+      weight: "100g",
+      maxQuantity: 10
     },
     {
-      id: 2,
+      id: 202,
       name: t('jasmineTeaName'),
       description: t('jasmineTeaDesc'),
       price: 10.50,
-      image: "https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+      image: "https://images.unsplash.com/photo-1561047029-3000c68339ca",
       categoryKey: CATEGORIES.GREEN,
+      category: "Tea",
       origin: t('china'),
-      weight: "100g"
+      weight: "100g",
+      maxQuantity: 10
     },
     {
-      id: 3,
+      id: 203,
       name: t('chamomileTeaName'),
       description: t('chamomileTeaDesc'),
       price: 7.90,
-      image: "https://images.unsplash.com/photo-1597481499751-6d6c3cbf29c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+      image: "https://images.unsplash.com/photo-1597481499751-6d6c3cbf29c8",
       categoryKey: CATEGORIES.HERBAL,
+      category: "Tea",
       origin: t('egypt'),
-      weight: "100g"
+      weight: "100g",
+      maxQuantity: 10
     },
     {
-      id: 4,
-      name: t('peppermintTeaName'),
-      description: t('peppermintTeaDesc'),
-      price: 6.90,
-      image: "https://images.unsplash.com/photo-1597481499751-6d6c3cbf29c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-      categoryKey: CATEGORIES.HERBAL,
-      origin: t('morocco'),
-      weight: "100g"
-    },
-    {
-      id: 5,
-      name: t('darjeelingName'),
-      description: t('darjeelingDesc'),
-      price: 12.90,
-      image: "https://images.unsplash.com/photo-1561047029-3000c68339ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-      categoryKey: CATEGORIES.BLACK,
-      origin: t('india'),
-      weight: "100g"
-    },
-    {
-      id: 6,
+      id: 204,
       name: t('berryTeaName'),
       description: t('berryTeaDesc'),
       price: 9.50,
-      image: "https://images.unsplash.com/photo-1560343090-f0409e92791a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+      image: "https://images.unsplash.com/photo-1560343090-f0409e92791a",
       categoryKey: CATEGORIES.FRUIT,
+      category: "Tea",
       origin: t('germany'),
-      weight: "100g"
-    },
-    {
-      id: 7,
-      name: t('matchaName'),
-      description: t('matchaDesc'),
-      price: 15.90,
-      image: "https://images.unsplash.com/photo-1559177240-0a02b4004da8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-      categoryKey: CATEGORIES.GREEN,
-      origin: t('japan'),
-      weight: "50g"
-    },
-    {
-      id: 8,
-      name: t('rooibosName'),
-      description: t('rooibosDesc'),
-      price: 8.50,
-      image: "https://images.unsplash.com/photo-1559177240-0a02b4004da8?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
-      categoryKey: CATEGORIES.HERBAL,
-      origin: t('southAfrica'),
-      weight: "100g"
+      weight: "100g",
+      maxQuantity: 10
     }
   ]);
 
-  const [cart, setCart] = useState([]);
+  /* ================== FILTRE ================== */
   const [filter, setFilter] = useState(CATEGORIES.ALL);
 
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-    alert(`${product.name} ${t('addedToCart')}`);
-  };
+  const filteredProducts =
+    filter === CATEGORIES.ALL
+      ? products
+      : products.filter(p => p.categoryKey === filter);
 
-  const filteredProducts = filter === CATEGORIES.ALL 
-    ? products 
-    : products.filter(product => product.categoryKey === filter);
-
-  const cartTotal = cart.reduce((total, item) => total + item.price, 0);
-
-  // Fonction pour obtenir la traduction de la catégorie
-  const getCategoryLabel = (categoryKey) => {
-    switch(categoryKey) {
+  /* ================== HELPERS ================== */
+  const getCategoryLabel = (key) => {
+    switch (key) {
       case CATEGORIES.ALL: return t('all');
       case CATEGORIES.BLACK: return t('blackTea');
       case CATEGORIES.GREEN: return t('greenTea');
       case CATEGORIES.HERBAL: return t('herbalTea');
       case CATEGORIES.FRUIT: return t('fruitTea');
-      default: return categoryKey;
+      default: return key;
     }
   };
 
+  const handleAddToCart = (product) => {
+    addToCart(product, 1);
+  };
+
+  /* ================== RENDER ================== */
   return (
     <div style={styles.container}>
-      {/* En-tête avec drapeau allemand */}
       <div style={styles.mainContent}>
+
+        {/* ====== SECTION PRODUITS ====== */}
         <div style={styles.shopSection}>
+
           <div style={styles.filterSection}>
             <h2 style={styles.sectionTitle}>{t('ourTeaVarieties')}</h2>
             <div style={styles.filterButtons}>
-              {[
-                CATEGORIES.ALL, 
-                CATEGORIES.BLACK, 
-                CATEGORIES.GREEN, 
-                CATEGORIES.HERBAL, 
-                CATEGORIES.FRUIT
-              ].map(categoryKey => (
+              {Object.values(CATEGORIES).map(key => (
                 <button
-                  key={categoryKey}
+                  key={key}
                   style={{
                     ...styles.filterButton,
-                    ...(filter === categoryKey ? styles.activeFilterButton : {})
+                    ...(filter === key ? styles.activeFilterButton : {})
                   }}
-                  onClick={() => setFilter(categoryKey)}
+                  onClick={() => setFilter(key)}
                 >
-                  {getCategoryLabel(categoryKey)}
+                  {getCategoryLabel(key)}
                 </button>
               ))}
             </div>
@@ -154,446 +120,191 @@ function Tea() {
           <div style={styles.productsGrid}>
             {filteredProducts.map(product => (
               <div key={product.id} style={styles.productCard}>
+
                 <div style={styles.productImageContainer}>
-                  <img 
-                    src={product.image} 
+                  <img
+                    src={product.image}
                     alt={product.name}
                     style={styles.productImage}
                   />
-                  <div style={styles.productCategory}>{getCategoryLabel(product.categoryKey)}</div>
+                  <div style={styles.productCategory}>
+                    {getCategoryLabel(product.categoryKey)}
+                  </div>
                 </div>
-                
+
                 <div style={styles.productInfo}>
                   <h3 style={styles.productName}>{product.name}</h3>
                   <p style={styles.productDescription}>{product.description}</p>
-                  
+
                   <div style={styles.productDetails}>
-                    <span style={styles.productOrigin}>
-                      <strong>{t('origin')}:</strong> {product.origin}
-                    </span>
-                    <span style={styles.productWeight}>
-                      <strong>{t('weight')}:</strong> {product.weight}
-                    </span>
+                    <span><strong>{t('origin')}:</strong> {product.origin}</span>
+                    <span><strong>{t('weight')}:</strong> {product.weight}</span>
                   </div>
-                  
+
                   <div style={styles.productFooter}>
-                    <div style={styles.productPrice}>{product.price.toFixed(2)} €</div>
-                    <button 
-                      style={styles.addToCartButton}
-                      onClick={() => addToCart(product)}
+                    <div style={styles.productPrice}>
+                      {product.price.toFixed(2)} €
+                    </div>
+
+                    <button
+                      style={{
+                        ...styles.addToCartButton,
+                        backgroundColor: isInCart(product.id)
+                          ? '#4CAF50'
+                          : '#1a5f23'
+                      }}
+                      onClick={() => handleAddToCart(product)}
                     >
-                      {t('addToCart')}
+                      {isInCart(product.id)
+                        ? '✓ Déjà au panier'
+                        : t('addToCart')}
                     </button>
                   </div>
                 </div>
+
               </div>
             ))}
           </div>
         </div>
 
-        <aside style={styles.cartSidebar}>
-          <div style={styles.cartHeader}>
-            <h2 style={styles.cartTitle}>{t('shoppingCart')}</h2>
-            <div style={styles.cartCount}>{cart.length} {t('items')}</div>
-          </div>
-          
-          {cart.length === 0 ? (
-            <div style={styles.emptyCart}>
-              <p style={styles.emptyCartText}>{t('cartEmpty')}</p>
-              <div style={styles.teaIcon}>🍵</div>
-            </div>
-          ) : (
-            <>
-              <div style={styles.cartItems}>
-                {cart.map((item, index) => (
-                  <div key={index} style={styles.cartItem}>
-                    <div style={styles.cartItemInfo}>
-                      <div style={styles.cartItemName}>{item.name}</div>
-                      <div style={styles.cartItemPrice}>{item.price.toFixed(2)} €</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div style={styles.cartTotal}>
-                <div style={styles.totalLabel}>{t('totalAmount')}:</div>
-                <div style={styles.totalAmount}>{cartTotal.toFixed(2)} €</div>
-              </div>
-              
-              <button style={styles.checkoutButton}>
-                {t('proceedToCheckout')}
-              </button>
-            </>
-          )}
-          
-          <div style={styles.infoBox}>
-            <h3 style={styles.infoTitle}>{t('whyQualityTea')}</h3>
-            <ul style={styles.infoList}>
-              <li>✔ {t('premiumSelection')}</li>
-              <li>✔ {t('directFromProducer')}</li>
-              <li>✔ {t('freshlyPackaged')}</li>
-              <li>✔ {t('sustainableCultivation')}</li>
-              <li>✔ {t('fairTrade')}</li>
-            </ul>
-          </div>
-
-          <div style={styles.brewingTips}>
-            <h3 style={styles.brewingTitle}>{t('brewingTips')}</h3>
-            <p style={styles.brewingText}>
-              {t('brewingDescription')}
-            </p>
-          </div>
-        </aside>
       </div>
-
     </div>
   );
 }
 
+/* ================== STYLES ================== */
 const styles = {
   container: {
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     backgroundColor: "#f8f8f8",
     minHeight: "100vh",
-    color: "#333",
-  },
-  header: {
-    backgroundColor: "#1a5f23",
-    color: "white",
-    padding: "20px 0",
-    textAlign: "center",
-    position: "relative",
-  },
-  germanFlag: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "15px",
-  },
-  blackStripe: {
-    backgroundColor: "#000000",
-    height: "5px",
-  },
-  redStripe: {
-    backgroundColor: "#DD0000",
-    height: "5px",
-  },
-  yellowStripe: {
-    backgroundColor: "#FFCC00",
-    height: "5px",
-  },
-  headerContent: {
-    padding: "20px 0",
-  },
-  logo: {
-    fontSize: "48px",
-    fontWeight: "bold",
-    margin: "10px 0 5px 0",
-    letterSpacing: "3px",
-  },
-  tagline: {
-    fontSize: "18px",
-    opacity: 0.9,
-    marginTop: "5px",
+    padding: "30px 0",
+    fontFamily: "Segoe UI, sans-serif"
   },
   mainContent: {
+    maxWidth: "1300px",
+    margin: "0 auto",
     display: "flex",
-    maxWidth: "1400px",
-    margin: "30px auto",
-    padding: "0 20px",
+    gap: "30px",
+    padding: "0 20px"
   },
   shopSection: {
-    flex: 3,
-    marginRight: "30px",
+    flex: 3
   },
   filterSection: {
-    backgroundColor: "white",
-    padding: "20px",
-    borderRadius: "10px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+    background: "white",
+    padding: "25px",
+    borderRadius: "12px",
     marginBottom: "30px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
   },
   sectionTitle: {
-    color: "#1a5f23",
-    marginBottom: "20px",
     fontSize: "28px",
+    marginBottom: "20px",
+    color: "#1a5f23"
   },
   filterButtons: {
     display: "flex",
-    flexWrap: "wrap",
     gap: "10px",
+    flexWrap: "wrap"
   },
   filterButton: {
     padding: "10px 20px",
-    backgroundColor: "#f0f0f0",
     border: "none",
-    borderRadius: "5px",
+    borderRadius: "6px",
     cursor: "pointer",
-    fontWeight: "500",
-    transition: "all 0.3s",
+    background: "#eee"
   },
   activeFilterButton: {
-    backgroundColor: "#1a5f23",
-    color: "white",
+    background: "#1a5f23",
+    color: "white"
   },
   productsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-    gap: "25px",
+    gap: "25px"
   },
   productCard: {
-    backgroundColor: "white",
-    borderRadius: "10px",
+    background: "white",
+    borderRadius: "12px",
     overflow: "hidden",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    transition: "transform 0.3s, box-shadow 0.3s",
     display: "flex",
-    flexDirection: "column",
-    ':hover': {
-      transform: 'translateY(-5px)',
-      boxShadow: '0 8px 20px rgba(0,0,0,0.15)'
-    }
+    flexDirection: "column"
   },
   productImageContainer: {
-    position: "relative",
     height: "200px",
-    overflow: "hidden",
+    position: "relative"
   },
   productImage: {
     width: "100%",
     height: "100%",
-    objectFit: "cover",
+    objectFit: "cover"
   },
   productCategory: {
     position: "absolute",
-    top: "15px",
-    right: "15px",
-    backgroundColor: "#1a5f23",
+    top: "10px",
+    right: "10px",
+    background: "#1a5f23",
     color: "white",
-    padding: "5px 10px",
+    padding: "5px 12px",
     borderRadius: "20px",
-    fontSize: "12px",
-    fontWeight: "bold",
+    fontSize: "12px"
   },
   productInfo: {
     padding: "20px",
     flexGrow: 1,
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "column"
   },
   productName: {
-    fontSize: "22px",
-    marginBottom: "10px",
-    color: "#1a5f23",
+    fontSize: "20px",
+    marginBottom: "10px"
   },
   productDescription: {
-    color: "#666",
-    lineHeight: "1.5",
-    marginBottom: "15px",
     flexGrow: 1,
+    color: "#666",
+    marginBottom: "15px"
   },
   productDetails: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: "20px",
-    fontSize: "14px",
-    color: "#555",
-  },
-  productOrigin: {
-    backgroundColor: "#f0f8f0",
-    padding: "5px 10px",
-    borderRadius: "5px",
-  },
-  productWeight: {
-    backgroundColor: "#f0f8f0",
-    padding: "5px 10px",
-    borderRadius: "5px",
+    marginBottom: "15px",
+    fontSize: "14px"
   },
   productFooter: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "center"
   },
   productPrice: {
-    fontSize: "24px",
+    fontSize: "22px",
     fontWeight: "bold",
-    color: "#d32f2f",
+    color: "#d32f2f"
   },
   addToCartButton: {
-    backgroundColor: "#1a5f23",
     color: "white",
     border: "none",
-    padding: "12px 20px",
-    borderRadius: "5px",
+    padding: "12px 18px",
+    borderRadius: "6px",
     cursor: "pointer",
-    fontWeight: "bold",
-    transition: "background-color 0.3s",
-    ':hover': {
-      backgroundColor: '#2e7d32'
-    }
+    fontWeight: "600"
   },
   cartSidebar: {
     flex: 1,
-    backgroundColor: "white",
-    borderRadius: "10px",
+    background: "white",
     padding: "25px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    borderRadius: "12px",
     height: "fit-content",
-  },
-  cartHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-    paddingBottom: "15px",
-    borderBottom: "2px solid #f0f0f0",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
   },
   cartTitle: {
-    color: "#1a5f23",
-    fontSize: "24px",
+    fontSize: "22px",
+    marginBottom: "10px"
   },
   cartCount: {
-    backgroundColor: "#d32f2f",
-    color: "white",
-    borderRadius: "20px",
-    padding: "5px 15px",
-    fontSize: "14px",
     fontWeight: "bold",
-  },
-  emptyCart: {
-    textAlign: "center",
-    padding: "40px 20px",
-  },
-  emptyCartText: {
-    color: "#666",
-    fontSize: "18px",
-    marginBottom: "20px",
-  },
-  teaIcon: {
-    fontSize: "60px",
-  },
-  cartItems: {
-    marginBottom: "20px",
-  },
-  cartItem: {
-    padding: "15px 0",
-    borderBottom: "1px solid #f0f0f0",
-  },
-  cartItemInfo: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-  cartItemName: {
-    fontWeight: "500",
-  },
-  cartItemPrice: {
-    fontWeight: "bold",
-    color: "#d32f2f",
-  },
-  cartTotal: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "20px 0",
-    borderTop: "2px solid #f0f0f0",
-    borderBottom: "2px solid #f0f0f0",
-    marginBottom: "20px",
-    fontSize: "18px",
-    fontWeight: "bold",
-  },
-  totalLabel: {
-    color: "#1a5f23",
-  },
-  totalAmount: {
-    color: "#d32f2f",
-  },
-  checkoutButton: {
-    backgroundColor: "#ff9800",
-    color: "white",
-    border: "none",
-    width: "100%",
-    padding: "15px",
-    borderRadius: "5px",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    transition: "background-color 0.3s",
-    marginBottom: "20px",
-    ':hover': {
-      backgroundColor: '#f57c00'
-    }
-  },
-  infoBox: {
-    backgroundColor: "#f0f8f0",
-    padding: "20px",
-    borderRadius: "10px",
-    borderLeft: "5px solid #1a5f23",
-    marginBottom: "20px",
-  },
-  infoTitle: {
-    color: "#1a5f23",
-    marginBottom: "15px",
-    fontSize: "18px",
-  },
-  infoList: {
-    listStyleType: "none",
-    paddingLeft: "0",
-  },
-  infoListLi: {
-    marginBottom: "8px",
-    color: "#555",
-  },
-  brewingTips: {
-    backgroundColor: "#fff8e1",
-    padding: "20px",
-    borderRadius: "10px",
-    borderLeft: "5px solid #ff9800",
-  },
-  brewingTitle: {
-    color: "#ff9800",
-    marginBottom: "15px",
-    fontSize: "18px",
-  },
-  brewingText: {
-    color: "#666",
-    lineHeight: "1.5",
-    fontSize: "14px",
-  },
-  footer: {
-    backgroundColor: "#1a5f23",
-    color: "white",
-    padding: "40px 0 20px 0",
-    marginTop: "50px",
-  },
-  footerContent: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    display: "flex",
-    justifyContent: "space-around",
-    flexWrap: "wrap",
-    padding: "0 20px",
-    marginBottom: "30px",
-  },
-  footerSection: {
-    flex: 1,
-    minWidth: "250px",
-    marginBottom: "30px",
-    padding: "0 20px",
-  },
-  footerTitle: {
-    fontSize: "20px",
-    marginBottom: "15px",
-    color: "#ffcc80",
-  },
-  copyright: {
-    textAlign: "center",
-    paddingTop: "20px",
-    borderTop: "1px solid rgba(255,255,255,0.1)",
-    color: "rgba(255,255,255,0.7)",
-    fontSize: "14px",
+    color: "#1a5f23"
   }
 };
-
-styles.infoList.li = styles.infoListLi;
 
 export default Tea;
