@@ -10,6 +10,12 @@ export default function Panier({ isModal = false, onClose = () => {} }) {
   const { cartItems, clearCart, cartItemCount, calculateSubtotal } = useCart();
   const [success, setSuccess] = useState(false);
 
+  // Supprimer un article avec notification temporaire
+  const handleRemove = () => {
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 2000);
+  };
+
   if (cartItems.length === 0) {
     return (
       <div className="empty-cart">
@@ -39,12 +45,8 @@ export default function Panier({ isModal = false, onClose = () => {} }) {
 
       <div className="cart-layout">
         <div className="cart-items">
-          {cartItems.map(item => (
-            <CartItem
-              key={item.id}
-              item={item}
-              onRemove={() => setSuccess(true)}
-            />
+          {cartItems.map((item) => (
+            <CartItem key={item.id} item={item} onRemove={handleRemove} />
           ))}
 
           <button className="clear-cart" onClick={clearCart}>
